@@ -24,8 +24,12 @@ for file in kv1/*.ZIP ; do
         echo "Make GTFS"
         if [ $DATAOWNERCODE = "EBS" ] ; then
              psql -d $DBNAME -f gtfs-shapes-EBS.sql
-        else                   
-             psql -d $DBNAME -f gtfs-shapes.sql
+        else
+             if [ $DATAOWNERCODE = "CXX" ] ; then
+               psql -d $DBNAME -f gtfs-shapes-CXX.sql
+             else
+               psql -d $DBNAME -f gtfs-shapes.sql
+             fi
         fi
         echo gtfs-$(basename "${file}")
         zip -j "gtfs/gtfs-$(basename "${file}")" /tmp/*.txt
