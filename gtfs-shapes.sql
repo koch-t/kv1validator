@@ -1,36 +1,36 @@
 -- GTFS: shapes.txt
---
--- Missing:
+-- -- Missing:
 --  KV1 support for LinkValidFrom
---  GTFS support for shape_dist_traveled (summation of distancesincestartoflink) 
+--  GTFS support for shape_dist_traveled (summation of distancesincestartoflink)
+--  ** disabled transporttype **
 
 COPY (
 SELECT DISTINCT shape_id,
-       CAST(Y(the_geom) AS NUMERIC(8,5)) AS shape_pt_lat,
-       CAST(X(the_geom) AS NUMERIC(7,5)) AS shape_pt_lon,
-       shape_pt_sequence
+      CAST(ST_Y(the_geom) AS NUMERIC(8,5)) AS shape_pt_lat,
+      CAST(ST_X(the_geom) AS NUMERIC(7,5)) AS shape_pt_lon,
+      shape_pt_sequence
 FROM
-  (SELECT jopatili.dataownercode||'|'||jopatili.lineplanningnumber||'|'||jopatili.journeypatterncode AS shape_id,
-   ST_Transform(setsrid(makepoint(locationx_ew, locationy_ns), 28992), 4326) AS the_geom,
-   rank() over (PARTITION BY jopatili.dataownercode, jopatili.lineplanningnumber, jopatili.journeypatterncode ORDER BY jopatili.dataownercode, jopatili.lineplanningnumber, jopatili.journeypatterncode, jopatili.timinglinkorder, pool.distancesincestartoflink) AS shape_pt_sequence
-   FROM jopatili,
-        pool,
-        point,
-        line
-   WHERE jopatili.dataownercode = pool.dataownercode
-     AND jopatili.userstopcodebegin = pool.userstopcodebegin
-     AND jopatili.userstopcodeend = pool.userstopcodeend
-     AND jopatili.dataownercode = line.dataownercode
-     AND jopatili.lineplanningnumber = line.lineplanningnumber
-     AND pool.pointdataownercode = point.dataownercode
-     AND pool.pointcode = point.pointcode
-   ORDER BY jopatili.dataownercode,
-            jopatili.lineplanningnumber,
-            jopatili.journeypatterncode,
-            jopatili.timinglinkorder,
-            pool.distancesincestartoflink) AS KV1 ORDER BY shape_id, shape_pt_sequence
+ (SELECT jopatili.dataownercode||'|'||jopatili.lineplanningnumber||'|'||jopatili.journeypatterncode AS shape_id,
+  ST_Transform(st_setsrid(st_makepoint(locationx_ew, locationy_ns), 28992), 4326) AS the_geom,
+  rank() over (PARTITION BY jopatili.dataownercode, jopatili.lineplanningnumber, jopatili.journeypatterncode ORDER BY jopatili.dataownercode, jopatili.lineplanningnumber, jopatili.journeypatterncode, jopatili.timinglinkorder, pool.distancesincestartoflink) AS shape_pt_sequence
+  FROM jopatili,
+       pool,
+       point,
+       line
+  WHERE jopatili.dataownercode = pool.dataownercode
+    AND jopatili.userstopcodebegin = pool.userstopcodebegin
+    AND jopatili.userstopcodeend = pool.userstopcodeend
+    AND jopatili.dataownercode = line.dataownercode
+    AND jopatili.lineplanningnumber = line.lineplanningnumber
+    AND pool.pointdataownercode = point.dataownercode
+    AND pool.pointcode = point.pointcode
+--     AND pool.transporttype = line.transporttype
+  ORDER BY jopatili.dataownercode,
+           jopatili.lineplanningnumber,
+           jopatili.journeypatterncode,
+           jopatili.timinglinkorder,
+           pool.distancesincestartoflink) AS KV1
 ) TO '/tmp/shapes.txt' WITH CSV HEADER;
-
 
 -- GTFS: stops.txt
 --
@@ -75,14 +75,22 @@ FROM   (SELECT u.dataownercode||'|'||u.userstopcode AS stop_id,
 ) TO '/tmp/stops.txt' WITH CSV HEADER;
 
 
+drop table gtfs_route_type;
+create table gtfs_route_type (transporttype varchar(5) primary key, route_type int4);
+insert into gtfs_route_type values ('TRAM', 0);
+insert into gtfs_route_type values ('METRO', 1);
+insert into gtfs_route_type values ('RAIL', 2);
+insert into gtfs_route_type values ('BUS', 3);
+insert into gtfs_route_type values ('BOAT', 4);
+
 -- GTFS: routes.txt
 COPY (
 SELECT dataownercode||'|'||lineplanningnumber AS route_id,
-       dataownercode AS agency_id,
-       linepublicnumber AS route_short_name,
-       linename AS route_long_name,
-       3 AS route_type
-FROM line
+      dataownercode AS agency_id,
+      linepublicnumber AS route_short_name,
+      linename AS route_long_name,
+      route_type AS route_type
+FROM line, gtfs_route_type WHERE line.transporttype = gtfs_route_type.transporttype
 ) TO '/tmp/routes.txt' WITH CSV HEADER;
 
 -- 3 kan BUS worden
