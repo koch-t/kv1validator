@@ -14,6 +14,7 @@ psql -d $DBNAME -f fix_rijksdriehoek.sql > /dev/null
 rm -rf unzipped
 for file in kv1/*.ZIP ; do
         psql -d $DBNAME -f clean.sql > /dev/null
+        psql -d $DBNAME -f kv1.sql > /dev/null
         psql -d $DBNAME -f kv1_$DATAOWNERCODE.sql > /dev/null
         echo "Import " "$file"
         echo $file
