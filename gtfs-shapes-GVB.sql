@@ -90,7 +90,7 @@ SELECT dataownercode||'|'||lineplanningnumber AS route_id,
       route_type AS route_type
 FROM line, gtfs_route_type WHERE line.transporttype = gtfs_route_type.transporttype
 ) TO '/tmp/routes.txt' WITH CSV HEADER;
-=============== SCHEDULES =============
+
 -- GTFS: calendar_dates (Schedules en passeertijden)
 COPY (
 SELECT
@@ -127,8 +127,10 @@ jt.destcode = d.destcode AND
 jt.timinglinkorder = 1 AND
 p.stoporder = 1
 ) TO '/tmp/trips.txt' WITH CSV HEADER;
+
 update pujopass set  targetdeparturetime = targetarrivaltime where targetdeparturetime is null;
 update pujopass set targetarrivaltime = targetdeparturetime where targetarrivaltime is null;
+
 COPY (
 SELECT
 p.dataownercode||'|'||p.organizationalunitcode||'|'||p.schedulecode||'|'||p.scheduletypecode||'|'||p.lineplanningnumber||'|'||p.journeynumber AS trip_id, p.targetarrivaltime AS arrival_time, p.targetdeparturetime AS departure_time,
@@ -141,3 +143,37 @@ WHERE p.dataownercode = u.dataownercode
 AND p.userstopcode = u.userstopcode
 AND (u.getin = TRUE OR u.getout = TRUE)
 ) TO '/tmp/stop_times.txt' WITH CSV HEADER;
+
+-- GTFS: calendar (Schedules en passeertijden)
+COPY (
+SELECT
+dataownercode||'|'||organizationalunitcode||'|'||schedulecode||'|'||scheduletypecode AS service_id,
+cast((scheduletypecode = 'MA' OR scheduletypecode = 'WE') AS int4) AS monday,
+cast((scheduletypecode = 'DI' OR scheduletypecode = 'WE') AS int4) AS tuesday,
+cast((scheduletypecode = 'WO' OR scheduletypecode = 'WE') AS int4) AS wednesday,
+cast((scheduletypecode = 'DO' OR scheduletypecode = 'WE') AS int4) AS thursday,
+cast((scheduletypecode = 'VR' OR scheduletypecode = 'WE') AS int4) AS friday,
+cast((scheduletypecode = 'ZA') AS int4) AS saturday,
+cast((scheduletypecode = 'ZO') AS int4) AS sunday,
+replace(CAST(validfrom AS TEXT), '-', '') AS start_date,
+replace(CAST(validthru AS TEXT), '-', '') AS end_date
+FROM
+schedvers
+) TO '/tmp/calendar.txt' WITH CSV HEADER;
+
+-- GTFS: calendar (Schedules en passeertijden)
+COPY (
+SELECT
+dataownercode||'|'||organizationalunitcode||'|'||schedulecode||'|'||scheduletypecode AS service_id,
+cast(strpos(description, 'Mo') > 0 AS int4) AS monday,
+cast(strpos(description, 'Tuesday') > 0 AS int4) AS tuesday,
+cast(strpos(description, 'We') > 0 AS int4) AS wednesday,
+cast(strpos(description, 'Th') > 0 AS int4) AS thursday,
+cast(strpos(description, 'Friday') > 0 AS int4) AS friday,
+cast(strpos(description, 'Saturday') > 0 AS int4) AS saturday,
+cast(strpos(description, 'Sunday') > 0 AS int4) AS sunday,
+replace(CAST(validfrom AS TEXT), '-', '') AS start_date,
+replace(CAST(validthru AS TEXT), '-', '') AS end_date
+FROM
+schedvers
+) TO '/tmp/calendar.txt' WITH CSV HEADER;
