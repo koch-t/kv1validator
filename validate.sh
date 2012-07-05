@@ -6,7 +6,7 @@ DBNAME="koppelvlak1"
 DATAOWNERCODE="EBS"
 
 cp $DATAOWNERCODE.txt /tmp/agency.txt
-
+mkdir gtfs
 createdb $DBNAME
 psql -d $DBNAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql > /dev/null
 psql -d $DBNAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql > /dev/null

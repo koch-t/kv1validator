@@ -90,7 +90,7 @@ SELECT dataownercode||'|'||lineplanningnumber AS route_id,
       route_type AS route_type
 FROM line, gtfs_route_type WHERE line.transporttype = gtfs_route_type.transporttype
 ) TO '/tmp/routes.txt' WITH CSV HEADER;
-=============== SCHEDULES =============
+
 -- GTFS: calendar_dates (Schedules en passeertijden)
 COPY (
 SELECT
