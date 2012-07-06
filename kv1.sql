@@ -115,6 +115,7 @@ CREATE TABLE "link" (
 	"validfrom"         DATE          NOT NULL,
 	"distance"          DECIMAL(6)    NOT NULL,
 	"description"       VARCHAR(255),
+	"transporttype"        VARCHAR(5),
 	PRIMARY KEY ("dataownercode", "userstopcodebegin", "userstopcodeend", "validfrom"),
 	FOREIGN KEY ("dataownercode", "userstopcodebegin", "userstopcodeend") REFERENCES "tili" ("dataownercode", "userstopcodebegin", "userstopcodeend")
 );
@@ -132,6 +133,7 @@ CREATE TABLE "pool" (
 	SegmentSpeed DECIMAL(4),
 	LocalPointSpeed DECIMAL(4),
 	Description VARCHAR(255),
+	"transporttype"        VARCHAR(5),
 	PRIMARY KEY (DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, LinkValidFrom, PointDataOwnerCode, PointCode),
 	FOREIGN KEY (DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, LinkValidFrom) REFERENCES link (DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, ValidFrom), FOREIGN KEY (PointDataOwnerCode, PointCode) REFERENCES point(DataOwnerCode, PointCode));
 

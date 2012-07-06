@@ -3,7 +3,7 @@
 # Echo out all files in directory!
 
 DBNAME="koppelvlak1"
-DATAOWNERCODE="EBS"
+DATAOWNERCODE="HTM"
 
 cp $DATAOWNERCODE.txt /tmp/agency.txt
 mkdir gtfs

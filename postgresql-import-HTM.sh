@@ -18,8 +18,7 @@ JOPATILI.TMI
 ORUN.TMI
 SCHEDVERS.TMI
 PUJOPASS.TMI
-OPERDAY.TMI
-" | while read i; do
+OPERDAY.TMI" | while read i; do
 	TABLE=`basename $i .TMI`
 	echo "COPY ${TABLE} FROM '${DATAPATH}/${i}' WITH DELIMITER AS '|' NULL AS '' CSV HEADER ENCODING '${ENCODING}';"
 done

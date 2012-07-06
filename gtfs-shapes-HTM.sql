@@ -71,7 +71,6 @@ FROM   (SELECT u.dataownercode||'|'||u.userstopcode AS stop_id,
                AND (u.getin = TRUE OR u.getout = TRUE)
                AND u.userstopcode IN (SELECT userstopcodebegin FROM jopatili UNION SELECT userstopcodeend FROM jopatili)) AS KV1
 ) TO '/tmp/stops.txt' WITH CSV HEADER;
-
 DROP TABLE gtfs_route_type;
 CREATE TABLE gtfs_route_type (transporttype varchar(5) primary key, route_type int4);
 INSERT INTO gtfs_route_type VALUES ('TRAM', 0);
@@ -149,13 +148,13 @@ AND (u.getin = TRUE OR u.getout = TRUE)
 COPY (
 SELECT
 dataownercode||'|'||organizationalunitcode||'|'||schedulecode||'|'||scheduletypecode AS service_id,
-cast((scheduletypecode = 'MA' OR scheduletypecode = 'WE') AS int4) AS monday,
-cast((scheduletypecode = 'DI' OR scheduletypecode = 'WE') AS int4) AS tuesday,
-cast((scheduletypecode = 'WO' OR scheduletypecode = 'WE') AS int4) AS wednesday,
-cast((scheduletypecode = 'DO' OR scheduletypecode = 'WE') AS int4) AS thursday,
-cast((scheduletypecode = 'VR' OR scheduletypecode = 'WE') AS int4) AS friday,
-cast((scheduletypecode = 'ZA') AS int4) AS saturday,
-cast((scheduletypecode = 'ZO') AS int4) AS sunday,
+cast(1 in (select extract(dow from generate_series(validfrom, validthru, interval '1 day'))) AS int4) AS monday,
+cast(2 in (select extract(dow from generate_series(validfrom, validthru, interval '1 day'))) AS int4) AS tuesday,
+cast(3 in (select extract(dow from generate_series(validfrom, validthru, interval '1 day'))) AS int4) AS wednesday,
+cast(4 in (select extract(dow from generate_series(validfrom, validthru, interval '1 day'))) AS int4) AS thursday,
+cast(5 in (select extract(dow from generate_series(validfrom, validthru, interval '1 day'))) AS int4) AS friday,
+cast(6 in (select extract(dow from generate_series(validfrom, validthru, interval '1 day'))) AS int4) AS saturday,
+cast(7 in (select extract(dow from generate_series(validfrom, validthru, interval '1 day'))) AS int4) AS sunday,
 replace(CAST(validfrom AS TEXT), '-', '') AS start_date,
 replace(CAST(validthru AS TEXT), '-', '') AS end_date
 FROM
