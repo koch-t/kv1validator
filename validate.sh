@@ -7,6 +7,14 @@ DATAOWNERCODE="HTM"
 
 cp $DATAOWNERCODE.txt /tmp/agency.txt
 mkdir gtfs
+
+#Replace spaces in filenames by underscores
+find kv1 -depth -name "* *" -execdir rename 's/ /_/g' "{}" \;
+for file in kv1/*.ZIP
+do
+mv ${file} ${file/.ZIP/.zip}
+done
+
 createdb $DBNAME
 psql -d $DBNAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql > /dev/null
 psql -d $DBNAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql > /dev/null
