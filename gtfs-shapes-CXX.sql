@@ -7,9 +7,6 @@ copy (select 'openOV' as feed_publisher_name, 'http://openov.nl/' as feed_publis
 --  GTFS support for shape_dist_traveled (summation of distancesincestartoflink)
 --  ** disabled transporttype **
 
-alter table pool add column dist_traveled DECIMAL(5);
-update pool set dist_traveled = (select coalesce(sum(distancesincestartoflink),0) from pool as d where d.dataownercode = pool.dataownercode and d.lineplanningnumber = pool.lineplanningnumber and d.journeypatterncode = pool.journeypatterncode and d.timinglinkorder < pool.timinglinkorder);
-
 COPY (
 SELECT DISTINCT shape_id,
       CAST(ST_Y(the_geom) AS NUMERIC(8,5)) AS shape_pt_lat,
