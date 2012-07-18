@@ -91,8 +91,32 @@ SELECT dataownercode||'|'||lineplanningnumber AS route_id,
 FROM line, gtfs_route_type WHERE line.transporttype = gtfs_route_type.transporttype
 ) TO '/tmp/routes.txt' WITH CSV HEADER;
 
+-- GTFS: trips.txt (Geldigheden en rijtijdgroepen)
+--
+-- Missing:
+--   KV1 doesn't disclose information about block_id (same busses used for the next trip)
 COPY (
-select distinct pv.dataownercode||'|'||pv.periodgroupcode||'|'||replace(cast(validfrom as text), '-', '')||'|'||daytype AS service_id,
+SELECT
+ p.dataownercode||'|'||p.lineplanningnumber AS route_id,
+ p.dataownercode||'|'||p.timetableversioncode||'|'||p.organizationalunitcode||'|'||p.periodgroupcode||'|'||p.specificdaycode||'|'||p.daytype AS service_id,
+ p.dataownercode||'|'||p.periodgroupcode||'|'||p.lineplanningnumber||'|'||p.journeynumber AS trip_id,
+ d.destnamefull AS trip_headsign,
+ (CAST(j.direction AS int4) - 1) AS direction_id,
+ jt.dataownercode||'|'||jt.lineplanningnumber||'|'||jt.journeypatterncode AS shape_id
+FROM pujo AS p, jopa AS j, jopatili AS jt, dest AS d WHERE
+ p.dataownercode = j.dataownercode AND
+ p.lineplanningnumber = j.lineplanningnumber AND
+ p.journeypatterncode = j.journeypatterncode AND
+ j.dataownercode = jt.dataownercode AND
+ j.lineplanningnumber = jt.lineplanningnumber AND
+ j.journeypatterncode = jt.journeypatterncode AND
+ jt.dataownercode = d.dataownercode AND
+ jt.destcode = d.destcode AND
+ jt.timinglinkorder = 0
+) TO '/tmp/trips.txt' WITH CSV HEADER;
+COPY (
+select distinct 
+pj.dataownercode||'|'||pj.timetableversioncode||'|'||pj.organizationalunitcode||'|'||pj.periodgroupcode||'|'||pj.specificdaycode||'|'||pj.daytype AS service_id
 cast(substr(pj.daytype,1,1) = '1' as int) AS monday,
 cast(substr(pj.daytype,2,1) = '2' as int) AS tuesday,
 cast(substr(pj.daytype,3,1) = '3' as int) AS wednesday,
@@ -108,3 +132,65 @@ pv.dataownercode = pj.dataownercode and
 pv.organizationalunitcode = pj.organizationalunitcode and
 pv.periodgroupcode = pj.periodgroupcode
 ) TO '/tmp/calendar.txt' WITH CSV HEADER;
+select distinct pj.dataownercode||'|'||pj.timetableversioncode||'|'||pj.organizationalunitcode||'|'||pj.periodgroupcode||'|'||pj.specificdaycode||'|'||pj.daytype AS service_id,
+REPLACE(CAST(CAST(validdate AS date) AS TEXT), '-', '') AS date,
+2
+from excopday as e, pujo as pj, pegrval as pv, tive as tv
+where
+-- join op tive/pujo
+tv.dataownercode = pj.dataownercode and
+tv.organizationalunitcode = pj.organizationalunitcode and
+tv.timetableversioncode = pj.timetableversioncode and
+tv.periodgroupcode = pj.periodgroupcode and
+tv.specificdaycode = pj.specificdaycode and
+-- join op pegrval/tive
+tv.dataownercode = pv.dataownercode and
+tv.organizationalunitcode = pv.organizationalunitcode and
+tv.periodgroupcode = pv.periodgroupcode and
+tv.validfrom = pv.validfrom and
+-- join op pujo/excopday
+e.dataownercode = pj.dataownercode and
+(e.organizationalunitcode = e.dataownercode OR pj.organizationalunitcode = e.organizationalunitcode) AND
+-- hiermee selecteren we alleen de geldige calenders in de periode
+e.validdate between pv.validfrom and pv.validthru and
+-- hiermee selecteren we alleen de ritten vanaf het tijdstip van de exceptie
+CAST(CAST(e.validdate AS TIME) AS TEXT) <= pj.departuretime and
+-- hiermee selecteren we alle geplande ritten op die dag
+substring(daytype, CAST(EXTRACT(dow from CAST(validdate AS date)) AS int4), 1) = CAST(EXTRACT(dow from CAST(validdate AS date)) AS TEXT)
+AND
+-- hiermee sluiten we uit dat een rit eigenlijk al gepland is op de nieuwe dag
+substring(daytype, CAST(substring(cast(daytypeason as text), 1, 1) AS int4), 1) <> substring(cast(daytypeason as text), 1, 1);
+select distinct pj.dataownercode||'|'||pj.timetableversioncode||'|'||pj.organizationalunitcode||'|'||pj.periodgroupcode||'|'||pj.specificdaycode||'|'||pj.daytype AS service_id,
+REPLACE(CAST(CAST(validdate AS date) AS TEXT), '-', '') AS date,
+1
+from excopday as e, pujo as pj, pegrval as pv, tive as tv
+where
+-- join op tive/pujo
+tv.dataownercode = pj.dataownercode and
+tv.organizationalunitcode = pj.organizationalunitcode and
+tv.timetableversioncode = pj.timetableversioncode and
+tv.periodgroupcode = pj.periodgroupcode and
+tv.specificdaycode = pj.specificdaycode and
+-- join op pegrval/tive
+tv.dataownercode = pv.dataownercode and
+tv.organizationalunitcode = pv.organizationalunitcode and
+tv.periodgroupcode = pv.periodgroupcode and
+tv.validfrom = pv.validfrom and
+-- join op pujo/excopday
+e.dataownercode = pj.dataownercode and
+(e.organizationalunitcode = e.dataownercode OR pj.organizationalunitcode = e.organizationalunitcode) AND
+-- hiermee selecteren we alleen de geldige calenders in de periode
+e.validdate between pv.validfrom and pv.validthru and
+-- hiermee selecteren we alleen de ritten vanaf het tijdstip van de exceptie
+CAST(CAST(e.validdate AS TIME) AS TEXT) <= pj.departuretime and
+-- hiermee selecteren we alle geplande ritten op die dag
+substring(daytype, CAST(substring(cast(daytypeason as text), 1, 1) AS int4), 1) = substring(cast(daytypeason as text), 1, 1)
+AND
+-- hiermee sluiten we uit dat een rit eigenlijk al gepland was op de oude dag
+substring(daytype, CAST(EXTRACT(dow from CAST(validdate AS date)) AS int4), 1) <> CAST(EXTRACT(dow from CAST(validdate AS date)) AS TEXT);
+select
+p.dataownercode||'|'||p.periodgroupcode||'|'||p.lineplanningnumber||'|'||p.journeynumber AS trip_id
+from pujo as p;
+CREATE OR REPLACE FUNCTION add32time(departuretime text, seconds integer) RETURNS text AS $$ SELECT CASE WHEN $2 IS NULL THEN $1 ELSE lpad(floor((total / 3600))::text, 2, '0')||':'||lpad(((total % 3600) / 60)::text, 2, '0')||':'||lpad((total % 60)::text, 2, '0') END AS arrival_time FROM (SELECT (cast(split_part($1, ':', 1) as int4) * 60 + cast(split_part($1, ':', 2) as int4)) * 60 + cast(split_part($1, ':', 3) as int4) + $2 as total) as xtotal $$ LANGUAGE SQL;
+CREATE OR REPLACE FUNCTION add32time(departuretime text, seconds integer) RETURNS text AS $$ SELECT lpad(floor((total / 3600))::text, 2, '0')||':'||lpad(((total % 3600) / 60)::text, 2, '0')||':'||lpad((total % 60)::text, 2, '0') AS arrival_time FROM (SELECT (cast(split_part($1, ':', 1) as int4) * 60 + cast(split_part($1, ':', 2) as int4)) * 60 + cast(split_part($1, ':', 3) as int4) + coalesce($2, 0) as total) as xtotal $$ LANGUAGE SQL;
+select trip_id, arrival_time, arrival_time as departure_time, stop_id, stop_sequence from (select p.dataownercode||'|'||p.periodgroupcode||'|'||p.lineplanningnumber||'|'||p.journeynumber AS trip_id, add32time(departuretime, cast((select sum(totaldrivetime) from timdemrnt as s where s.dataownercode = t.dataownercode and s.lineplanningnumber = t.lineplanningnumber and s.journeypatterncode = t.journeypatterncode and s.timedemandgroupcode = t.timedemandgroupcode and s.timinglinkorder <= t.timinglinkorder) as integer)) as arrival_time, userstopcodeend as stop_id, timinglinkorder as stop_sequence from timdemrnt as t, pujo as p where p.dataownercode = t.dataownercode and p.lineplanningnumber = t.lineplanningnumber and p.journeypatterncode = t.journeypatterncode union select p.dataownercode||'|'||p.periodgroupcode||'|'||p.lineplanningnumber||'|'||p.journeynumber AS trip_id, departuretime as arrival_time, t.userstopcodebegin as arrival_time, t.timinglinkorder as stop_sequence from pujo as p, (select dataownercode, lineplanningnumber, journeypatterncode, timedemandgroupcode, min(timinglinkorder) as timinglinkorder from timdemrnt group by dataownercode, lineplanningnumber, journeypatterncode, timedemandgroupcode) as f, timdemrnt as t where p.dataownercode = t.dataownercode and p.lineplanningnumber = t.lineplanningnumber and p.journeypatterncode = t.journeypatterncode and t.dataownercode = f.dataownercode and t.lineplanningnumber = f.lineplanningnumber and t.journeypatterncode = f.journeypatterncode and t.timedemandgroupcode = f.timedemandgroupcode and t.timinglinkorder = f.timinglinkorder) as x order by trip_id, stop_sequence;
