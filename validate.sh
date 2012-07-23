@@ -3,7 +3,7 @@
 # Echo out all files in directory!
 
 DBNAME="koppelvlak1"
-DATAOWNERCODE="HTM"
+DATAOWNERCODE="VTN"
 
 cp $DATAOWNERCODE.txt /tmp/agency.txt
 mkdir gtfs
@@ -23,7 +23,7 @@ rm -rf unzipped
 for file in kv1/*.zip ; do
         psql -d $DBNAME -f clean.sql > /dev/null
         psql -d $DBNAME -f kv1.sql > /dev/null
-        psql -d $DBNAME -f kv1_$DATAOWNERCODE.sql > /dev/null
+        psql -d $DBNAME -f kv1_$DATAOWNERCODE.sql
         echo "Import " "$file"
         echo $file
         unzip "$file" -d unzipped
