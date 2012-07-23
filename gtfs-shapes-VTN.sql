@@ -82,8 +82,10 @@ INSERT INTO gtfs_route_type VALUES ('BUS', 3);
 INSERT INTO gtfs_route_type VALUES ('BOAT', 4);
 -- GTFS: routes.txt
 -- If line.transporttype isn't set, it should be added by:
--- ALTER TABLE line ADD COLUMN transporttype VARCHAR(5);
--- UPDATE line SET transporttype = 'BUS';
+
+ALTER TABLE line ADD COLUMN transporttype VARCHAR(5);
+UPDATE line SET transporttype = 'BUS' where linepublicnumber <> 'FF';
+UPDATE line SET transporttype = 'BOAT' where linepublicnumber = 'FF';
 COPY (
 SELECT dataownercode||'|'||lineplanningnumber AS route_id,
       dataownercode AS agency_id,
@@ -150,13 +152,13 @@ AND (u.getin = TRUE OR u.getout = TRUE)
 COPY (
 SELECT
 dataownercode||'|'||organizationalunitcode||'|'||schedulecode||'|'||scheduletypecode AS service_id,
-cast((scheduletypecode = 'MA' OR scheduletypecode = 'WE') AS int4) AS monday,
-cast((scheduletypecode = 'DI' OR scheduletypecode = 'WE') AS int4) AS tuesday,
-cast((scheduletypecode = 'WO' OR scheduletypecode = 'WE') AS int4) AS wednesday,
-cast((scheduletypecode = 'DO' OR scheduletypecode = 'WE') AS int4) AS thursday,
-cast((scheduletypecode = 'VR' OR scheduletypecode = 'WE') AS int4) AS friday,
-cast((scheduletypecode = 'ZA') AS int4) AS saturday,
-cast((scheduletypecode = 'ZO') AS int4) AS sunday,
+cast((description like '%Weekday%' or description like '%Mon-Wed%' or description like '%Monday%') AS int4) AS monday,
+cast((description like '%Weekday%' or description like '%Mon-Wed%' or description like '%Tuesday%') AS int4) AS tuesday,
+cast((description like '%Weekday%' or description like '%Mon-Wed%' or description like '%Wednesday%') AS int4) AS wednesday,
+cast((description like '%Weekday%' or description like '%Thu-Fri%' or description like '%Thursday%') AS int4) AS thursday,
+cast((description like '%Weekday%' or description like '%Thu-Fri%' or description like '%Friday%') AS int4) AS friday,
+cast((description like '%Saturday%') AS int4) AS saturday,
+cast((description like '%Sunday%') AS int4) AS sunday,
 replace(CAST(validfrom AS TEXT), '-', '') AS start_date,
 replace(CAST(validthru AS TEXT), '-', '') AS end_date
 FROM

@@ -28,6 +28,7 @@ FROM
     AND pool.pointdataownercode = point.dataownercode
     AND pool.pointcode = point.pointcode
 --     AND pool.transporttype = line.transporttype
+    AND current_date > pool.LinkValidFrom
   ORDER BY jopatili.dataownercode,
            jopatili.lineplanningnumber,
            jopatili.journeypatterncode,
