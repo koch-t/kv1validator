@@ -31,9 +31,13 @@ for file in kv1/*.zip ; do
         rm -rf unzipped
         echo "Make GTFS"
         psql -d $DBNAME -f gtfs-shapes-$DATAOWNERCODE.sql
-        echo gtfs-$(basename "${file}")
-        zip -j "gtfs/gtfs-$(basename "${file}")" /tmp/*.txt
-        python transitfeed-1.2.11/feedvalidator.py "gtfs/gtfs-$(basename "${file}")" -o "gtfs/gtfs-$(basename "${file}").html" -l 50000 --error_types_ignore_list=ExpirationDate,FutureService
-        python transitfeed-1.2.11/kmlwriter.py "gtfs/gtfs-$(basename "${file}")"
+        FILENAME=gtfs-$(basename "${file}")
+        FILE="${FILENAME%.*}"
+        mkdir gtfs/$FILE
+        zip -j "gtfs/$FILE/$FILENAME" /tmp/*.txt
+        python transitfeed-1.2.11/feedvalidator.py gtfs/$FILE/$FILENAME -o "gtfs/$FILE/$FILE.html" -l 50000 --error_types_ignore_list=ExpirationDate,FutureService
+        python transitfeed-1.2.11/kmlwriter.py gtfs/$FILE/$FILENAME
+        zip gtfs/$FILE/$FILE.kmz gtfs/$FILE/$FILE.kml
+        rm gtfs/$FILE/$FILE.kml
 done
 dropdb $DBNAME
