@@ -3,30 +3,31 @@
 # Echo out all files in directory!
 
 DBNAME="koppelvlak1"
-DATAOWNERCODE="VTN"
+DATAOWNERCODE="SYNTUS"
 
 cp $DATAOWNERCODE.txt /tmp/agency.txt
 mkdir gtfs
 
 #Replace spaces in filenames by underscores
-find kv1 -depth -name "* *" -execdir rename 's/ /_/g' "{}" \;
+#find kv1 -depth -name "* *" -execdir rename 's/ /_/g' "{}" \;
+renamexm -s"/ /_/g" kv1/*
 for file in kv1/*.ZIP
 do
 mv ${file} ${file/.ZIP/.zip}
 done
 
 createdb $DBNAME
-psql -d $DBNAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql > /dev/null
-psql -d $DBNAME -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql > /dev/null
+psql -d $DBNAME -c "create extension postgis;"
 psql -d $DBNAME -f fix_rijksdriehoek.sql > /dev/null
 rm -rf unzipped
 for file in kv1/*.zip ; do
         psql -d $DBNAME -f clean.sql > /dev/null
-        psql -d $DBNAME -f kv1.sql > /dev/null
+        psql -d $DBNAME -f kv1.sql
         psql -d $DBNAME -f kv1_$DATAOWNERCODE.sql
         echo "Import " "$file"
         echo $file
         unzip "$file" -d unzipped
+        echo "Import to Postgres"
         ./postgresql-import-$DATAOWNERCODE.sh unzipped | psql -d $DBNAME
         rm -rf unzipped
         echo "Make GTFS"

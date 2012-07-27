@@ -35,8 +35,7 @@ FROM
            pool.distancesincestartoflink) AS KV1
 ) TO '/tmp/shapes.txt' WITH CSV HEADER;
 -- GTFS: stops.txt
-COPY (
-SELECT stop_id || '|parent' as stop_id, a.name AS stop_name,
+COPY (SELECT stop_id || '|parent' as stop_id, a.name AS stop_name,
        CAST(ST_Y(the_geom) AS NUMERIC(8,5)) AS stop_lat,
        CAST(ST_X(the_geom) AS NUMERIC(7,5)) AS stop_lon,
        1      AS location_type,
@@ -128,8 +127,10 @@ jt.destcode = d.destcode AND
 jt.timinglinkorder = 1 AND
 p.stoporder = 1
 ) TO '/tmp/trips.txt' WITH CSV HEADER;
+
 update pujopass set  targetdeparturetime = targetarrivaltime where targetdeparturetime is null;
 update pujopass set targetarrivaltime = targetdeparturetime where targetarrivaltime is null;
+
 COPY (
 SELECT
 p.dataownercode||'|'||p.organizationalunitcode||'|'||p.schedulecode||'|'||p.scheduletypecode||'|'||p.lineplanningnumber||'|'||p.journeynumber AS trip_id, p.targetarrivaltime AS arrival_time, p.targetdeparturetime AS departure_time,

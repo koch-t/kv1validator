@@ -116,7 +116,7 @@ CREATE TABLE "link" (
 	"distance"          DECIMAL(6)    NOT NULL,
 	"description"       VARCHAR(255),
 	"transporttype"        VARCHAR(5),
-	PRIMARY KEY ("dataownercode", "userstopcodebegin", "userstopcodeend", "validfrom"),
+	PRIMARY KEY ("dataownercode", "userstopcodebegin", "userstopcodeend", "validfrom", "transporttype"),
 	FOREIGN KEY ("dataownercode", "userstopcodebegin", "userstopcodeend") REFERENCES "tili" ("dataownercode", "userstopcodebegin", "userstopcodeend")
 );
 CREATE TABLE "pool" (
@@ -134,8 +134,10 @@ CREATE TABLE "pool" (
 	LocalPointSpeed DECIMAL(4),
 	Description VARCHAR(255),
 	"transporttype"        VARCHAR(5),
-	PRIMARY KEY (DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, LinkValidFrom, PointDataOwnerCode, PointCode),
-	FOREIGN KEY (DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, LinkValidFrom) REFERENCES link (DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, ValidFrom), FOREIGN KEY (PointDataOwnerCode, PointCode) REFERENCES point(DataOwnerCode, PointCode));
+	PRIMARY KEY (DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, LinkValidFrom, PointDataOwnerCode, PointCode, TransportType),
+	FOREIGN KEY (DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, LinkValidFrom, TransportType) REFERENCES link (DataOwnerCode, 
+UserStopCodeBegin, 
+UserStopCodeEnd, ValidFrom, TransportType), FOREIGN KEY (PointDataOwnerCode, PointCode) REFERENCES point(DataOwnerCode, PointCode));
 
 CREATE TABLE "jopa" (
 	"tablename"         VARCHAR(10)   NOT NULL,

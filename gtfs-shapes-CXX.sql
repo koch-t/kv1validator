@@ -1,4 +1,5 @@
-copy (select 'openOV' as feed_publisher_name, 'http://openov.nl/' as feed_publisher_url, 'nl' as feed_lang, replace(cast(min(validdate) AS text), '-', '') as feed_start_date, replace(cast(max(validdate) AS text), '-', '') as feed_end_date, now() as feed_version from operday) TO '/tmp/feed_info.txt' WITH CSV HEADER;
+copy (select 'OVapi' as feed_publisher_name, 'http://ovapi.nl/' as feed_publisher_url, 'nl' as feed_lang, replace(cast(min(validdate) AS text), '-', 
+'') as feed_start_date, replace(cast(max(validdate) AS text), '-', '') as feed_end_date, now() as feed_version from operday) TO '/tmp/feed_info.txt' WITH CSV HEADER;
 
 -- Ik denk agency.txt gewoon statisch houden.
 -- GTFS: shapes.txt
@@ -28,7 +29,6 @@ FROM
     AND pool.pointdataownercode = point.dataownercode
     AND pool.pointcode = point.pointcode
 --     AND pool.transporttype = line.transporttype
-    AND current_date > pool.LinkValidFrom
   ORDER BY jopatili.dataownercode,
            jopatili.lineplanningnumber,
            jopatili.journeypatterncode,

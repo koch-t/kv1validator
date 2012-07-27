@@ -1,5 +1,7 @@
 -- GTFS: feed_info.txt
-copy (select 'openOV' as feed_publisher_name, 'http://openov.nl/' as feed_publisher_url, 'nl' as feed_lang, replace(cast(min(validdate) AS text), '-', '') as feed_start_date, replace(cast(max(validdate) AS text), '-', '') as feed_end_date, now() as feed_version from operday) TO '/tmp/feed_info.txt' WITH CSV HEADER;
+copy (select 'OVapi' as feed_publisher_name, 'http://ovapi.nl/' as feed_publisher_url, 'nl' as feed_lang, replace(cast(min(validdate) AS text), '-', 
+'') 
+as feed_start_date, replace(cast(max(validdate) AS text), '-', '') as feed_end_date, now() as feed_version from operday) TO '/tmp/feed_info.txt' WITH CSV HEADER;
 -- Ik denk agency.txt gewoon statisch houden.
 -- GTFS: shapes.txt
 -- -- Missing:
@@ -27,8 +29,7 @@ FROM
     AND pool.pointdataownercode = point.dataownercode
     AND pool.pointcode = point.pointcode
 --     AND pool.transporttype = line.transporttype
-    AND current_date > pool.LinkValidFrom
-  ORDER BY jopatili.dataownercode,
+ORDER BY jopatili.dataownercode,
            jopatili.lineplanningnumber,
            jopatili.journeypatterncode,
            jopatili.timinglinkorder,
@@ -37,12 +38,12 @@ FROM
 -- GTFS: stops.txt
 COPY (
 SELECT stop_id || '|parent' as stop_id, a.name AS stop_name,
-       CAST(Y(the_geom) AS NUMERIC(8,5)) AS stop_lat,
-       CAST(X(the_geom) AS NUMERIC(7,5)) AS stop_lon,
+       CAST(ST_Y(the_geom) AS NUMERIC(8,5)) AS stop_lat,
+       CAST(ST_X(the_geom) AS NUMERIC(7,5)) AS stop_lon,
        1      AS location_type,
        NULL   AS parent_station
 FROM   (SELECT parent_station AS stop_id,
-               ST_Transform(setsrid(makepoint(AVG(locationx_ew), AVG(locationy_ns)), 28992), 4326) AS the_geom
+               ST_Transform(ST_setsrid(ST_makepoint(AVG(locationx_ew), AVG(locationy_ns)), 28992), 4326) AS the_geom
         FROM   (SELECT u.dataownercode || '|' || u.userstopareacode AS parent_station,
                        locationx_ew,
                        locationy_ns
@@ -57,13 +58,13 @@ WHERE  stop_id = a.dataownercode || '|' || a.userstopareacode
 UNION
 SELECT stop_id,
        stop_name,
-       CAST(Y(the_geom) AS NUMERIC(8,5)) AS stop_lat,
-       CAST(X(the_geom) AS NUMERIC(7,5)) AS stop_lon,
+       CAST(ST_Y(the_geom) AS NUMERIC(8,5)) AS stop_lat,
+       CAST(ST_X(the_geom) AS NUMERIC(7,5)) AS stop_lon,
        location_type,
        parent_station
 FROM   (SELECT u.dataownercode||'|'||u.userstopcode AS stop_id,
                u.name AS stop_name,
-               ST_Transform(setsrid(makepoint(p.locationx_ew, p.locationy_ns), 28992), 4326) AS the_geom,
+               ST_Transform(ST_setsrid(ST_makepoint(p.locationx_ew, p.locationy_ns), 28992), 4326) AS the_geom,
                0 AS location_type,
                u.dataownercode||'|'||u.userstopareacode||'|parent' AS parent_station
         FROM   usrstop AS u, point AS p
