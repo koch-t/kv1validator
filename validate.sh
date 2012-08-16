@@ -37,8 +37,8 @@ for file in kv1/*.zip ; do
         FILE="${FILENAME%.*}"
         mkdir gtfs/$FILE
         zip -j "gtfs/$FILE/$FILENAME" /tmp/*.txt
-        python transitfeed-1.2.11/feedvalidator.py gtfs/$FILE/$FILENAME -o "gtfs/$FILE/$FILE.html" -l 50000 --error_types_ignore_list=ExpirationDate,FutureService
-        python transitfeed-1.2.11/kmlwriter.py gtfs/$FILE/$FILENAME
+        python transitfeed/feedvalidator.py gtfs/$FILE/$FILENAME -o "gtfs/$FILE/$FILE.html" -l 50000 --error_types_ignore_list=ExpirationDate,FutureService
+        python transitfeed/kmlwriter.py gtfs/$FILE/$FILENAME
         zip gtfs/$FILE/$FILE.kmz gtfs/$FILE/$FILE.kml
         rm gtfs/$FILE/$FILE.kml
 done
