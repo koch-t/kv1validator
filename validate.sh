@@ -3,7 +3,8 @@
 # Echo out all files in directory!
 
 DBNAME="koppelvlak1"
-DATAOWNERCODE="SYNTUS"
+DATAOWNERCODE=$1
+#="SYNTUS"
 
 cp $DATAOWNERCODE.txt /tmp/agency.txt
 mkdir gtfs
@@ -41,4 +42,4 @@ for file in kv1/*.zip ; do
         zip gtfs/$FILE/$FILE.kmz gtfs/$FILE/$FILE.kml
         rm gtfs/$FILE/$FILE.kml
 done
-dropdb $DBNAME
+#dropdb $DBNAME
