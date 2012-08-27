@@ -13,10 +13,10 @@ alter table link drop column transporttype;
 alter table pool drop column transporttype;
 
 -- For KV1 supplied to GOVI
-alter table pujopass drop column wheelchairaccessible;
-alter table pujopass drop column dataownerisoperator;
-alter table jopatili drop column productformulatype;
-alter table dest drop column relevantdestnamedetail;
-alter table line drop column transporttype;
-alter table usrstop drop column userstoptype;
-alter table jopatili drop constraint jopatili_dataownercode_fkey;
+--alter table pujopass drop column wheelchairaccessible;
+--alter table pujopass drop column dataownerisoperator;
+--alter table jopatili drop column productformulatype;
+--alter table dest drop column relevantdestnamedetail;
+--alter table line drop column transporttype;
+--alter table usrstop drop column userstoptype;
+--alter table jopatili drop constraint jopatili_dataownercode_fkey;
