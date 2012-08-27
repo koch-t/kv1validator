@@ -77,7 +77,7 @@ DROP TABLE gtfs_route_type;
 CREATE TABLE gtfs_route_type (transporttype varchar(5) primary key, route_type int4);
 INSERT INTO gtfs_route_type VALUES ('TRAM', 0);
 INSERT INTO gtfs_route_type VALUES ('METRO', 1);
-INSERT INTO gtfs_route_type VALUES ('RAIL', 2);
+INSERT INTO gtfs_route_type VALUES ('TRAIN', 2);
 INSERT INTO gtfs_route_type VALUES ('BUS', 3);
 INSERT INTO gtfs_route_type VALUES ('BOAT', 4);
 -- GTFS: routes.txt

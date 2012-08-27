@@ -1,6 +1,6 @@
 --GOVI supplied KV1 workaround
-ALTER TABLE line ADD COLUMN transporttype VARCHAR(5);
-UPDATE line SET transporttype = 'BUS';
+--ALTER TABLE line ADD COLUMN transporttype VARCHAR(5);
+--UPDATE line SET transporttype = 'BUS' WHERE transportype is null;
 
 -- GTFS: feed_info.txt
 copy (select 'OVapi' as feed_publisher_name, 'http://ovapi.nl/' as feed_publisher_url, 'nl' as feed_lang, replace(cast(min(validdate) AS text), '-', 
@@ -80,7 +80,7 @@ DROP TABLE gtfs_route_type;
 CREATE TABLE gtfs_route_type (transporttype varchar(5) primary key, route_type int4);
 INSERT INTO gtfs_route_type VALUES ('TRAM', 0);
 INSERT INTO gtfs_route_type VALUES ('METRO', 1);
-INSERT INTO gtfs_route_type VALUES ('RAIL', 2);
+INSERT INTO gtfs_route_type VALUES ('TRAIN', 2);
 INSERT INTO gtfs_route_type VALUES ('BUS', 3);
 INSERT INTO gtfs_route_type VALUES ('BOAT', 4);
 -- GTFS: routes.txt
