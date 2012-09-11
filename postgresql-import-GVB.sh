@@ -15,7 +15,6 @@ POOL.csv
 JOPA.csv
 JOPATILI.csv
 ORUN.csv
-ORUNORUN.csv
 SCHEDVERS.csv
 PUJOPASS.csv
 OPERDAY.csv" | while read i; do
