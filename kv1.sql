@@ -1,3 +1,12 @@
+CREATE TABLE "version" (
+    "version" serial,
+    "datownercode" VARCHAR(10)   NOT NULL,
+    "validfrom"    DATE          NOT NULL,
+    "validthru"    DATE,
+    "filename"     VARCHAR(32)   NOT NULL,
+    PRIMARY KEY ("version", "dataownercode")
+);
+
 CREATE TABLE "dest" (
 	"tablename"         VARCHAR(10)   NOT NULL,
 	"version"                DECIMAL(2)    NOT NULL,
@@ -8,7 +17,7 @@ CREATE TABLE "dest" (
 	"destnamemain"           VARCHAR(24)   NOT NULL,
 	"destnamedetail"         VARCHAR(24),
 	"relevantdestnamedetail" VARCHAR(5),
-	PRIMARY KEY ("dataownercode", "destcode")
+	PRIMARY KEY ("version", "dataownercode", "destcode")
 );
 CREATE TABLE "line" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -21,7 +30,7 @@ CREATE TABLE "line" (
 	"linevetagnumber"    DECIMAL(3)    NOT NULL,
 	"description"        VARCHAR(255),
 	"transporttype"        VARCHAR(5),
-	PRIMARY KEY ("dataownercode", "lineplanningnumber")
+	PRIMARY KEY ("version", "dataownercode", "lineplanningnumber")
 );
 CREATE TABLE "conarea" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -30,7 +39,7 @@ CREATE TABLE "conarea" (
 	"dataownercode"      VARCHAR(10)   NOT NULL,
 	"concessionareacode" VARCHAR(10)   NOT NULL,
 	"description"        VARCHAR(255)  NOT NULL,
-	PRIMARY KEY ("dataownercode", "concessionareacode")
+	PRIMARY KEY ("version", "dataownercode", "concessionareacode")
 );
 CREATE TABLE "confinrel" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -40,8 +49,8 @@ CREATE TABLE "confinrel" (
 	"confinrelcode"      VARCHAR(10)   NOT NULL,
 	"concessionareacode" VARCHAR(10)   NOT NULL,
 	"financercode"       VARCHAR(10),
-	PRIMARY KEY ("dataownercode", "confinrelcode"),
-	FOREIGN KEY ("dataownercode", "concessionareacode") REFERENCES "conarea" ("dataownercode", "concessionareacode")
+	PRIMARY KEY ("version", "dataownercode", "confinrelcode"),
+	FOREIGN KEY ("version", "dataownercode", "concessionareacode") REFERENCES "conarea" ("version", "dataownercode", "concessionareacode")
 );
 CREATE TABLE "usrstar" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -54,7 +63,7 @@ CREATE TABLE "usrstar" (
 	"roadsideeqdataownercode" VARCHAR(10),
 	"roadsideequnitnumber"    DECIMAL(5),
 	"description"             VARCHAR(255),
-	 PRIMARY KEY ("dataownercode", "userstopareacode")
+	 PRIMARY KEY ("version", "dataownercode", "userstopareacode")
 );
 CREATE TABLE "usrstop" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -76,7 +85,7 @@ CREATE TABLE "usrstop" (
 	"stopsidelength"          DECIMAL(3),
 	"description"             VARCHAR(255),
 	"userstoptype"            VARCHAR(10),
-	PRIMARY KEY ("dataownercode", "userstopcode")
+	PRIMARY KEY ("version", "dataownercode", "userstopcode")
 );
 CREATE TABLE "point" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -91,7 +100,7 @@ CREATE TABLE "point" (
 	"locationy_ns"         DECIMAL(10)   NOT NULL,
 	"locationz"            DECIMAL(3),
 	"description"          VARCHAR(255),
-	PRIMARY KEY ("dataownercode", "pointcode")
+	PRIMARY KEY ("version", "dataownercode", "pointcode")
 );
 CREATE TABLE "tili" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -102,8 +111,8 @@ CREATE TABLE "tili" (
 	"userstopcodeend"   VARCHAR(10)   NOT NULL,
 	"minimaldrivetime"  DECIMAL(5),
 	"description"       VARCHAR(255),
-	PRIMARY KEY ("dataownercode", "userstopcodebegin", "userstopcodeend"),
-	FOREIGN KEY ("dataownercode", "userstopcodeend") REFERENCES "usrstop" ("dataownercode", "userstopcode")
+	PRIMARY KEY ("version", "dataownercode", "userstopcodebegin", "userstopcodeend"),
+	FOREIGN KEY ("version", "dataownercode", "userstopcodeend") REFERENCES "usrstop" ("version", "dataownercode", "userstopcode")
 );
 CREATE TABLE "link" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -116,8 +125,8 @@ CREATE TABLE "link" (
 	"distance"          DECIMAL(6)    NOT NULL,
 	"description"       VARCHAR(255),
 	"transporttype"        VARCHAR(5),
-	PRIMARY KEY ("dataownercode", "userstopcodebegin", "userstopcodeend", "validfrom", "transporttype"),
-	FOREIGN KEY ("dataownercode", "userstopcodebegin", "userstopcodeend") REFERENCES "tili" ("dataownercode", "userstopcodebegin", "userstopcodeend")
+	PRIMARY KEY ("version", "dataownercode", "userstopcodebegin", "userstopcodeend", "validfrom", "transporttype"),
+	FOREIGN KEY ("version", "dataownercode", "userstopcodebegin", "userstopcodeend") REFERENCES "tili" ("version", "dataownercode", "userstopcodebegin", "userstopcodeend")
 );
 CREATE TABLE "pool" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -135,9 +144,9 @@ CREATE TABLE "pool" (
 	Description VARCHAR(255),
 	"transporttype"        VARCHAR(5),
 	PRIMARY KEY (DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, LinkValidFrom, PointDataOwnerCode, PointCode, TransportType),
-	FOREIGN KEY (DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, LinkValidFrom, TransportType) REFERENCES link (DataOwnerCode, 
+	FOREIGN KEY (DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, LinkValidFrom, TransportType) REFERENCES link (Version, DataOwnerCode, 
 UserStopCodeBegin, 
-UserStopCodeEnd, ValidFrom, TransportType), FOREIGN KEY (PointDataOwnerCode, PointCode) REFERENCES point(DataOwnerCode, PointCode));
+UserStopCodeEnd, ValidFrom, TransportType), FOREIGN KEY (PointDataOwnerCode, PointCode) REFERENCES point(Version, DataOwnerCode, PointCode));
 
 CREATE TABLE "jopa" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -149,8 +158,8 @@ CREATE TABLE "jopa" (
 	"journeypatterntype" VARCHAR(10)   NOT NULL,
 	"direction"          int4    NOT NULL,
 	"description"        VARCHAR(255),
-	PRIMARY KEY ("dataownercode", "lineplanningnumber", "journeypatterncode"),
-	FOREIGN KEY ("dataownercode", "lineplanningnumber") REFERENCES "line" ("dataownercode", "lineplanningnumber")
+	PRIMARY KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode"),
+	FOREIGN KEY ("version", "dataownercode", "lineplanningnumber") REFERENCES "line" ("version", "dataownercode", "lineplanningnumber")
 );
 CREATE TABLE "jopatili" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -168,11 +177,11 @@ CREATE TABLE "jopatili" (
 	"istimingstop"       BOOLEAN        NOT NULL,
 	"displaypublicline"  VARCHAR(4),
 	"productformulatype"    DECIMAL(4),
-	PRIMARY KEY ("dataownercode", "lineplanningnumber", "journeypatterncode", "timinglinkorder"),
-	FOREIGN KEY ("dataownercode", "confinrelcode") REFERENCES "confinrel" ("dataownercode", "confinrelcode"),
-	FOREIGN KEY ("dataownercode", "destcode") REFERENCES "dest" ("dataownercode", "destcode"),
-	FOREIGN KEY ("dataownercode", "lineplanningnumber", "journeypatterncode") REFERENCES "jopa" ("dataownercode", "lineplanningnumber", "journeypatterncode"),
-	FOREIGN KEY ("dataownercode", "userstopcodebegin", "userstopcodeend") REFERENCES "tili" ("dataownercode", "userstopcodebegin", "userstopcodeend")
+	PRIMARY KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timinglinkorder"),
+	FOREIGN KEY ("version", "dataownercode", "confinrelcode") REFERENCES "confinrel" ("version", "dataownercode", "confinrelcode"),
+	FOREIGN KEY ("version", "dataownercode", "destcode") REFERENCES "dest" ("version", "dataownercode", "destcode"),
+	FOREIGN KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode") REFERENCES "jopa" ("version", "dataownercode", "lineplanningnumber", "journeypatterncode"),
+	FOREIGN KEY ("version", "dataownercode", "userstopcodebegin", "userstopcodeend") REFERENCES "tili" ("version", "dataownercode", "userstopcodebegin", "userstopcodeend")
 );
 CREATE TABLE "orun" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -183,7 +192,7 @@ CREATE TABLE "orun" (
 	"name"                   VARCHAR(50)   NOT NULL,
 	"organizationalunittype" VARCHAR(10)   NOT NULL,
 	"description"            VARCHAR(255),
-	PRIMARY KEY ("dataownercode", "organizationalunitcode")
+	PRIMARY KEY ("version", "dataownercode", "organizationalunitcode")
 );
 CREATE TABLE "orunorun" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -193,8 +202,8 @@ CREATE TABLE "orunorun" (
 	"organizationalunitcodeparent" VARCHAR(10)   NOT NULL,
 	"organizationalunitcodechild"  VARCHAR(10)   NOT NULL,
 	"validfrom"                    DATE          NOT NULL,
-	PRIMARY KEY ("dataownercode", "organizationalunitcodeparent", "organizationalunitcodechild", "validfrom"),
-	FOREIGN KEY ("dataownercode", "organizationalunitcodechild") REFERENCES "orun" ("dataownercode", "organizationalunitcode")
+	PRIMARY KEY ("version", "dataownercode", "organizationalunitcodeparent", "organizationalunitcodechild", "validfrom"),
+	FOREIGN KEY ("version", "dataownercode", "organizationalunitcodechild") REFERENCES "orun" ("version", "dataownercode", "organizationalunitcode")
 );
 CREATE TABLE "specday" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -204,7 +213,7 @@ CREATE TABLE "specday" (
 	"specificdaycode" VARCHAR(10)   NOT NULL,
 	"name"            VARCHAR(50)   NOT NULL,
 	"description"     VARCHAR(255),
-	PRIMARY KEY ("dataownercode", "specificdaycode")
+	PRIMARY KEY ("version", "dataownercode", "specificdaycode")
 );
 CREATE TABLE "pegr" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -213,7 +222,7 @@ CREATE TABLE "pegr" (
 	"dataownercode"   VARCHAR(10)   NOT NULL,
 	"periodgroupcode" VARCHAR(10)   NOT NULL,
 	"description"     VARCHAR(255),
-	PRIMARY KEY ("dataownercode", "periodgroupcode")
+	PRIMARY KEY ("version", "dataownercode", "periodgroupcode")
 );
 CREATE TABLE "excopday" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -226,9 +235,9 @@ CREATE TABLE "excopday" (
 	"specificdaycode"        VARCHAR(10)   NOT NULL,
 	"periodgroupcode"        VARCHAR(10),
 	"description"            VARCHAR(255),
-	PRIMARY KEY ("dataownercode", "organizationalunitcode", "validdate"),
-	FOREIGN KEY ("dataownercode", "periodgroupcode") REFERENCES "pegr" ("dataownercode", "periodgroupcode"),
-	FOREIGN KEY ("dataownercode", "specificdaycode") REFERENCES "specday" ("dataownercode", "specificdaycode")
+	PRIMARY KEY ("version", "dataownercode", "organizationalunitcode", "validdate"),
+	FOREIGN KEY ("version", "dataownercode", "periodgroupcode") REFERENCES "pegr" ("version", "dataownercode", "periodgroupcode"),
+	FOREIGN KEY ("version", "dataownercode", "specificdaycode") REFERENCES "specday" ("version", "dataownercode", "specificdaycode")
 );
 CREATE TABLE "pegrval" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -239,8 +248,8 @@ CREATE TABLE "pegrval" (
 	"periodgroupcode"        VARCHAR(10)   NOT NULL,
 	"validfrom"              DATE          NOT NULL,
 	"validthru"              DATE          NOT NULL,
-	PRIMARY KEY ("dataownercode", "organizationalunitcode", "periodgroupcode", "validfrom"),
-	FOREIGN KEY ("dataownercode", "organizationalunitcode") REFERENCES "orun" ("dataownercode", "organizationalunitcode")
+	PRIMARY KEY ("version", "dataownercode", "organizationalunitcode", "periodgroupcode", "validfrom"),
+	FOREIGN KEY ("version", "dataownercode", "organizationalunitcode") REFERENCES "orun" ("version", "dataownercode", "organizationalunitcode")
 );
 CREATE TABLE "tive" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -255,10 +264,10 @@ CREATE TABLE "tive" (
 	"timetableversiontype"   VARCHAR(10)   NOT NULL,
 	"validthru"              DATE,
 	"description"            VARCHAR(255),
-	PRIMARY KEY ("dataownercode", "organizationalunitcode", "timetableversioncode", "periodgroupcode", "specificdaycode"),
-	FOREIGN KEY ("dataownercode", "organizationalunitcode") REFERENCES "orun" ("dataownercode", "organizationalunitcode"),
-	FOREIGN KEY ("dataownercode", "periodgroupcode") REFERENCES "pegr" ("dataownercode", "periodgroupcode"),
-	FOREIGN KEY ("dataownercode", "specificdaycode") REFERENCES "specday" ("dataownercode", "specificdaycode")
+	PRIMARY KEY ("version", "dataownercode", "organizationalunitcode", "timetableversioncode", "periodgroupcode", "specificdaycode"),
+	FOREIGN KEY ("version", "dataownercode", "organizationalunitcode") REFERENCES "orun" ("version", "dataownercode", "organizationalunitcode"),
+	FOREIGN KEY ("version", "dataownercode", "periodgroupcode") REFERENCES "pegr" ("version", "dataownercode", "periodgroupcode"),
+	FOREIGN KEY ("version", "dataownercode", "specificdaycode") REFERENCES "specday" ("version", "dataownercode", "specificdaycode")
 );
 CREATE TABLE "timdemgrp" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -268,8 +277,8 @@ CREATE TABLE "timdemgrp" (
 	"lineplanningnumber"  VARCHAR(10)   NOT NULL,
 	"journeypatterncode"  VARCHAR(10)   NOT NULL,
 	"timedemandgroupcode" VARCHAR(10)   NOT NULL,
-	PRIMARY KEY ("dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode"),
-	FOREIGN KEY ("dataownercode", "lineplanningnumber", "journeypatterncode") REFERENCES "jopa" ("dataownercode", "lineplanningnumber", "journeypatterncode")
+	PRIMARY KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode"),
+	FOREIGN KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode") REFERENCES "jopa" ("version", "dataownercode", "lineplanningnumber", "journeypatterncode")
 );
 CREATE TABLE "timdemrnt" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -288,9 +297,9 @@ CREATE TABLE "timdemrnt" (
 	"layovertime"         DECIMAL(5),
 	"stopwaittime"        DECIMAL(5)    NOT NULL,
 	"minimumstoptime"     DECIMAL(5),
-	PRIMARY KEY ("dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode", "timinglinkorder"),
-	FOREIGN KEY ("dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode") REFERENCES "timdemgrp" ("dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode"),
-	FOREIGN KEY ("dataownercode", "lineplanningnumber", "journeypatterncode", "timinglinkorder") REFERENCES "jopatili" ("dataownercode", "lineplanningnumber", "journeypatterncode", "timinglinkorder")
+	PRIMARY KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode", "timinglinkorder"),
+	FOREIGN KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode") REFERENCES "timdemgrp" ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode"),
+	FOREIGN KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timinglinkorder") REFERENCES "jopatili" ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timinglinkorder")
 );
 CREATE TABLE "pujo" (
 	"tablename"         VARCHAR(10)   NOT NULL,
@@ -309,9 +318,9 @@ CREATE TABLE "pujo" (
 	"departuretime"          CHAR(8)       NOT NULL,
 	"wheelchairaccessible"   VARCHAR(13)   NOT NULL,
 	"dataownerisoperator"    BOOLEAN       NOT NULL,
-	 PRIMARY KEY ("dataownercode", "timetableversioncode", "organizationalunitcode", "periodgroupcode", "specificdaycode", "daytype", "lineplanningnumber", "journeynumber"),
-	 FOREIGN KEY ("dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode") REFERENCES "timdemgrp" ("dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode"),
-	 FOREIGN KEY ("dataownercode", "organizationalunitcode", "timetableversioncode", "periodgroupcode", "specificdaycode") REFERENCES "tive" ("dataownercode", "organizationalunitcode", "timetableversioncode", "periodgroupcode", "specificdaycode")
+	 PRIMARY KEY ("version", "dataownercode", "timetableversioncode", "organizationalunitcode", "periodgroupcode", "specificdaycode", "daytype", "lineplanningnumber", "journeynumber"),
+	 FOREIGN KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode") REFERENCES "timdemgrp" ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode"),
+	 FOREIGN KEY ("version", "dataownercode", "organizationalunitcode", "timetableversioncode", "periodgroupcode", "specificdaycode") REFERENCES "tive" ("version", "dataownercode", "organizationalunitcode", "timetableversioncode", "periodgroupcode", "specificdaycode")
 );
 
 CREATE TABLE schedvers (
@@ -325,8 +334,8 @@ CREATE TABLE schedvers (
     validfrom date NOT NULL,
     validthru date,
     description character varying(255),
-    PRIMARY KEY (dataownercode, organizationalunitcode, schedulecode, scheduletypecode),
-    FOREIGN KEY (dataownercode, organizationalunitcode) REFERENCES orun(dataownercode, organizationalunitcode)
+    PRIMARY KEY (version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode),
+    FOREIGN KEY (version, dataownercode, organizationalunitcode) REFERENCES orun(version, dataownercode, organizationalunitcode)
 );
 
 CREATE TABLE operday (
@@ -339,8 +348,8 @@ CREATE TABLE operday (
     scheduletypecode character varying(10) NOT NULL,
     validdate date NOT NULL,
     description character varying(255),
-    PRIMARY KEY (dataownercode, organizationalunitcode, schedulecode, scheduletypecode, validdate),
-    FOREIGN KEY (dataownercode, organizationalunitcode, schedulecode, scheduletypecode) REFERENCES schedvers(dataownercode, organizationalunitcode, schedulecode, scheduletypecode)
+    PRIMARY KEY (version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode, validdate),
+    FOREIGN KEY (version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode) REFERENCES schedvers(version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode)
 );
 
 CREATE TABLE pujopass (
@@ -360,9 +369,9 @@ CREATE TABLE pujopass (
     targetdeparturetime char(8),
     wheelchairaccessible VARCHAR(13),
     dataownerisoperator boolean NOT NULL,
-    PRIMARY KEY (dataownercode, organizationalunitcode, schedulecode, scheduletypecode, lineplanningnumber, journeynumber, stoporder),
-    FOREIGN KEY (dataownercode, organizationalunitcode, schedulecode, scheduletypecode) REFERENCES schedvers(dataownercode, organizationalunitcode, schedulecode, scheduletypecode),
-    FOREIGN KEY (dataownercode, userstopcode) REFERENCES usrstop(dataownercode, userstopcode),
-    FOREIGN KEY (dataownercode, lineplanningnumber, journeypatterncode) REFERENCES jopa(dataownercode, lineplanningnumber, journeypatterncode)
+    PRIMARY KEY (version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode, lineplanningnumber, journeynumber, stoporder),
+    FOREIGN KEY (version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode) REFERENCES schedvers(version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode),
+    FOREIGN KEY (version, dataownercode, userstopcode) REFERENCES usrstop(version, dataownercode, userstopcode),
+    FOREIGN KEY (version, dataownercode, lineplanningnumber, journeypatterncode) REFERENCES jopa(version, dataownercode, lineplanningnumber, journeypatterncode)
 );
 
