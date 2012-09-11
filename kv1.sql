@@ -1,6 +1,6 @@
 CREATE TABLE "version" (
-    "version" serial,
-    "datownercode" VARCHAR(10)   NOT NULL,
+    "version" serial4,
+    "dataownercode" VARCHAR(10)   NOT NULL,
     "validfrom"    DATE          NOT NULL,
     "validthru"    DATE,
     "filename"     VARCHAR(32)   NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE "version" (
 
 CREATE TABLE "dest" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"                DECIMAL(2)    NOT NULL,
+	"version"                INTEGER    NOT NULL,
 	"implicit"               CHAR(1)       NOT NULL,
 	"dataownercode"          VARCHAR(10)   NOT NULL,
 	"destcode"               VARCHAR(10)   NOT NULL,
@@ -17,11 +17,12 @@ CREATE TABLE "dest" (
 	"destnamemain"           VARCHAR(24)   NOT NULL,
 	"destnamedetail"         VARCHAR(24),
 	"relevantdestnamedetail" VARCHAR(5),
-	PRIMARY KEY ("version", "dataownercode", "destcode")
+	PRIMARY KEY ("version", "dataownercode", "destcode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "line" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"            DECIMAL(2)    NOT NULL,
+	"version"            INTEGER    NOT NULL,
 	"implicit"           CHAR(1)       NOT NULL,
 	"dataownercode"      VARCHAR(10)   NOT NULL,
 	"lineplanningnumber" VARCHAR(10)   NOT NULL,
@@ -30,31 +31,34 @@ CREATE TABLE "line" (
 	"linevetagnumber"    DECIMAL(3)    NOT NULL,
 	"description"        VARCHAR(255),
 	"transporttype"        VARCHAR(5),
-	PRIMARY KEY ("version", "dataownercode", "lineplanningnumber")
+	PRIMARY KEY ("version", "dataownercode", "lineplanningnumber"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "conarea" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"            DECIMAL(2)    NOT NULL,
+	"version"            INTEGER    NOT NULL,
 	"implicit"           CHAR(1)       NOT NULL,
 	"dataownercode"      VARCHAR(10)   NOT NULL,
 	"concessionareacode" VARCHAR(10)   NOT NULL,
 	"description"        VARCHAR(255)  NOT NULL,
-	PRIMARY KEY ("version", "dataownercode", "concessionareacode")
+	PRIMARY KEY ("version", "dataownercode", "concessionareacode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "confinrel" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"            DECIMAL(2)    NOT NULL,
+	"version"            INTEGER    NOT NULL,
 	"implicit"           CHAR(1)       NOT NULL,
 	"dataownercode"      VARCHAR(10)   NOT NULL,
 	"confinrelcode"      VARCHAR(10)   NOT NULL,
 	"concessionareacode" VARCHAR(10)   NOT NULL,
 	"financercode"       VARCHAR(10),
 	PRIMARY KEY ("version", "dataownercode", "confinrelcode"),
-	FOREIGN KEY ("version", "dataownercode", "concessionareacode") REFERENCES "conarea" ("version", "dataownercode", "concessionareacode")
+	FOREIGN KEY ("version", "dataownercode", "concessionareacode") REFERENCES "conarea" ("version", "dataownercode", "concessionareacode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "usrstar" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"                 DECIMAL(2)    NOT NULL,
+	"version"                 INTEGER    NOT NULL,
 	"implicit"                CHAR(1)       NOT NULL,
 	"dataownercode"           VARCHAR(10)   NOT NULL,
 	"userstopareacode"        VARCHAR(10)   NOT NULL,
@@ -63,11 +67,12 @@ CREATE TABLE "usrstar" (
 	"roadsideeqdataownercode" VARCHAR(10),
 	"roadsideequnitnumber"    DECIMAL(5),
 	"description"             VARCHAR(255),
-	 PRIMARY KEY ("version", "dataownercode", "userstopareacode")
+	PRIMARY KEY ("version", "dataownercode", "userstopareacode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "usrstop" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"                 DECIMAL(2)    NOT NULL,
+	"version"                 INTEGER    NOT NULL,
 	"implicit"                CHAR(1)       NOT NULL,
 	"dataownercode"           VARCHAR(10)   NOT NULL,
 	"userstopcode"            VARCHAR(10)   NOT NULL,
@@ -85,11 +90,12 @@ CREATE TABLE "usrstop" (
 	"stopsidelength"          DECIMAL(3),
 	"description"             VARCHAR(255),
 	"userstoptype"            VARCHAR(10),
-	PRIMARY KEY ("version", "dataownercode", "userstopcode")
+	PRIMARY KEY ("version", "dataownercode", "userstopcode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "point" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"              DECIMAL(2)    NOT NULL,
+	"version"              INTEGER    NOT NULL,
 	"implicit"             CHAR(1)       NOT NULL,
 	"dataownercode"        VARCHAR(10)   NOT NULL,
 	"pointcode"            VARCHAR(10)   NOT NULL,
@@ -100,11 +106,12 @@ CREATE TABLE "point" (
 	"locationy_ns"         DECIMAL(10)   NOT NULL,
 	"locationz"            DECIMAL(3),
 	"description"          VARCHAR(255),
-	PRIMARY KEY ("version", "dataownercode", "pointcode")
+	PRIMARY KEY ("version", "dataownercode", "pointcode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "tili" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"           DECIMAL(2)    NOT NULL,
+	"version"           INTEGER    NOT NULL,
 	"implicit"          CHAR(1)       NOT NULL,
 	"dataownercode"     VARCHAR(10)   NOT NULL,
 	"userstopcodebegin" VARCHAR(10)   NOT NULL,
@@ -112,11 +119,12 @@ CREATE TABLE "tili" (
 	"minimaldrivetime"  DECIMAL(5),
 	"description"       VARCHAR(255),
 	PRIMARY KEY ("version", "dataownercode", "userstopcodebegin", "userstopcodeend"),
-	FOREIGN KEY ("version", "dataownercode", "userstopcodeend") REFERENCES "usrstop" ("version", "dataownercode", "userstopcode")
+	FOREIGN KEY ("version", "dataownercode", "userstopcodeend") REFERENCES "usrstop" ("version", "dataownercode", "userstopcode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "link" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"           DECIMAL(2)    NOT NULL,
+	"version"           INTEGER    NOT NULL,
 	"implicit"          CHAR(1)       NOT NULL,
 	"dataownercode"     VARCHAR(10)   NOT NULL,
 	"userstopcodebegin" VARCHAR(10)   NOT NULL,
@@ -126,11 +134,12 @@ CREATE TABLE "link" (
 	"description"       VARCHAR(255),
 	"transporttype"        VARCHAR(5),
 	PRIMARY KEY ("version", "dataownercode", "userstopcodebegin", "userstopcodeend", "validfrom", "transporttype"),
-	FOREIGN KEY ("version", "dataownercode", "userstopcodebegin", "userstopcodeend") REFERENCES "tili" ("version", "dataownercode", "userstopcodebegin", "userstopcodeend")
+	FOREIGN KEY ("version", "dataownercode", "userstopcodebegin", "userstopcodeend") REFERENCES "tili" ("version", "dataownercode", "userstopcodebegin", "userstopcodeend"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "pool" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	version DECIMAL(2) NOT NULL, 
+	version INTEGER NOT NULL, 
 	implicit CHAR(1) NOT NULL, 
 	dataownercode VARCHAR(10) NOT NULL,
 	userStopCodeBegin VARCHAR(10) NOT NULL,
@@ -143,14 +152,15 @@ CREATE TABLE "pool" (
 	LocalPointSpeed DECIMAL(4),
 	Description VARCHAR(255),
 	"transporttype"        VARCHAR(5),
-	PRIMARY KEY (DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, LinkValidFrom, PointDataOwnerCode, PointCode, TransportType),
-	FOREIGN KEY (DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, LinkValidFrom, TransportType) REFERENCES link (Version, DataOwnerCode, 
-UserStopCodeBegin, 
-UserStopCodeEnd, ValidFrom, TransportType), FOREIGN KEY (PointDataOwnerCode, PointCode) REFERENCES point(Version, DataOwnerCode, PointCode));
+	PRIMARY KEY (Version, DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, LinkValidFrom, PointDataOwnerCode, PointCode, TransportType),
+	FOREIGN KEY (Version, DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, LinkValidFrom, TransportType) REFERENCES link (Version, DataOwnerCode, UserStopCodeBegin, UserStopCodeEnd, ValidFrom, TransportType),
+    FOREIGN KEY (Version, PointDataOwnerCode, PointCode) REFERENCES point(Version, DataOwnerCode, PointCode),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
+);
 
 CREATE TABLE "jopa" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"            DECIMAL(2)    NOT NULL,
+	"version"            INTEGER    NOT NULL,
 	"implicit"           CHAR(1)       NOT NULL,
 	"dataownercode"      VARCHAR(10)   NOT NULL,
 	"lineplanningnumber" VARCHAR(10)   NOT NULL,
@@ -159,11 +169,12 @@ CREATE TABLE "jopa" (
 	"direction"          int4    NOT NULL,
 	"description"        VARCHAR(255),
 	PRIMARY KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode"),
-	FOREIGN KEY ("version", "dataownercode", "lineplanningnumber") REFERENCES "line" ("version", "dataownercode", "lineplanningnumber")
+	FOREIGN KEY ("version", "dataownercode", "lineplanningnumber") REFERENCES "line" ("version", "dataownercode", "lineplanningnumber"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "jopatili" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"            DECIMAL(2)    NOT NULL,
+	"version"            INTEGER    NOT NULL,
 	"implicit"           CHAR(1)       NOT NULL,
 	"dataownercode"      VARCHAR(10)   NOT NULL,
 	"lineplanningnumber" VARCHAR(10)   NOT NULL,
@@ -181,52 +192,57 @@ CREATE TABLE "jopatili" (
 	FOREIGN KEY ("version", "dataownercode", "confinrelcode") REFERENCES "confinrel" ("version", "dataownercode", "confinrelcode"),
 	FOREIGN KEY ("version", "dataownercode", "destcode") REFERENCES "dest" ("version", "dataownercode", "destcode"),
 	FOREIGN KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode") REFERENCES "jopa" ("version", "dataownercode", "lineplanningnumber", "journeypatterncode"),
-	FOREIGN KEY ("version", "dataownercode", "userstopcodebegin", "userstopcodeend") REFERENCES "tili" ("version", "dataownercode", "userstopcodebegin", "userstopcodeend")
+	FOREIGN KEY ("version", "dataownercode", "userstopcodebegin", "userstopcodeend") REFERENCES "tili" ("version", "dataownercode", "userstopcodebegin", "userstopcodeend"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "orun" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"                DECIMAL(2)    NOT NULL,
+	"version"                INTEGER    NOT NULL,
 	"implicit"               CHAR(1)       NOT NULL,
 	"dataownercode"          VARCHAR(10)   NOT NULL,
 	"organizationalunitcode" VARCHAR(10)   NOT NULL,
 	"name"                   VARCHAR(50)   NOT NULL,
 	"organizationalunittype" VARCHAR(10)   NOT NULL,
 	"description"            VARCHAR(255),
-	PRIMARY KEY ("version", "dataownercode", "organizationalunitcode")
+	PRIMARY KEY ("version", "dataownercode", "organizationalunitcode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "orunorun" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"                      DECIMAL(2)    NOT NULL,
+	"version"                      INTEGER    NOT NULL,
 	"implicit"                     CHAR(1)       NOT NULL,
 	"dataownercode"                VARCHAR(10)   NOT NULL,
 	"organizationalunitcodeparent" VARCHAR(10)   NOT NULL,
 	"organizationalunitcodechild"  VARCHAR(10)   NOT NULL,
 	"validfrom"                    DATE          NOT NULL,
 	PRIMARY KEY ("version", "dataownercode", "organizationalunitcodeparent", "organizationalunitcodechild", "validfrom"),
-	FOREIGN KEY ("version", "dataownercode", "organizationalunitcodechild") REFERENCES "orun" ("version", "dataownercode", "organizationalunitcode")
+	FOREIGN KEY ("version", "dataownercode", "organizationalunitcodechild") REFERENCES "orun" ("version", "dataownercode", "organizationalunitcode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "specday" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"         DECIMAL(2)    NOT NULL,
+	"version"         INTEGER    NOT NULL,
 	"implicit"        CHAR(1)       NOT NULL,
 	"dataownercode"   VARCHAR(10)   NOT NULL,
 	"specificdaycode" VARCHAR(10)   NOT NULL,
 	"name"            VARCHAR(50)   NOT NULL,
 	"description"     VARCHAR(255),
-	PRIMARY KEY ("version", "dataownercode", "specificdaycode")
+	PRIMARY KEY ("version", "dataownercode", "specificdaycode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "pegr" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"         DECIMAL(2)    NOT NULL,
+	"version"         INTEGER    NOT NULL,
 	"implicit"        CHAR(1)       NOT NULL,
 	"dataownercode"   VARCHAR(10)   NOT NULL,
 	"periodgroupcode" VARCHAR(10)   NOT NULL,
 	"description"     VARCHAR(255),
-	PRIMARY KEY ("version", "dataownercode", "periodgroupcode")
+	PRIMARY KEY ("version", "dataownercode", "periodgroupcode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "excopday" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"                DECIMAL(2)    NOT NULL,
+	"version"                INTEGER    NOT NULL,
 	"implicit"               CHAR(1)       NOT NULL,
 	"dataownercode"          VARCHAR(10)   NOT NULL,
 	"organizationalunitcode" VARCHAR(10)   NOT NULL,
@@ -237,11 +253,12 @@ CREATE TABLE "excopday" (
 	"description"            VARCHAR(255),
 	PRIMARY KEY ("version", "dataownercode", "organizationalunitcode", "validdate"),
 	FOREIGN KEY ("version", "dataownercode", "periodgroupcode") REFERENCES "pegr" ("version", "dataownercode", "periodgroupcode"),
-	FOREIGN KEY ("version", "dataownercode", "specificdaycode") REFERENCES "specday" ("version", "dataownercode", "specificdaycode")
+	FOREIGN KEY ("version", "dataownercode", "specificdaycode") REFERENCES "specday" ("version", "dataownercode", "specificdaycode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "pegrval" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"                DECIMAL(2)    NOT NULL,
+	"version"                INTEGER    NOT NULL,
 	"implicit"               CHAR(1)       NOT NULL,
 	"dataownercode"          VARCHAR(10)   NOT NULL,
 	"organizationalunitcode" VARCHAR(10)   NOT NULL,
@@ -249,11 +266,12 @@ CREATE TABLE "pegrval" (
 	"validfrom"              DATE          NOT NULL,
 	"validthru"              DATE          NOT NULL,
 	PRIMARY KEY ("version", "dataownercode", "organizationalunitcode", "periodgroupcode", "validfrom"),
-	FOREIGN KEY ("version", "dataownercode", "organizationalunitcode") REFERENCES "orun" ("version", "dataownercode", "organizationalunitcode")
+	FOREIGN KEY ("version", "dataownercode", "organizationalunitcode") REFERENCES "orun" ("version", "dataownercode", "organizationalunitcode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "tive" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"                DECIMAL(2)    NOT NULL,
+	"version"                INTEGER    NOT NULL,
 	"implicit"               CHAR(1)       NOT NULL,
 	"dataownercode"          VARCHAR(10)   NOT NULL,
 	"organizationalunitcode" VARCHAR(10)   NOT NULL,
@@ -267,22 +285,24 @@ CREATE TABLE "tive" (
 	PRIMARY KEY ("version", "dataownercode", "organizationalunitcode", "timetableversioncode", "periodgroupcode", "specificdaycode"),
 	FOREIGN KEY ("version", "dataownercode", "organizationalunitcode") REFERENCES "orun" ("version", "dataownercode", "organizationalunitcode"),
 	FOREIGN KEY ("version", "dataownercode", "periodgroupcode") REFERENCES "pegr" ("version", "dataownercode", "periodgroupcode"),
-	FOREIGN KEY ("version", "dataownercode", "specificdaycode") REFERENCES "specday" ("version", "dataownercode", "specificdaycode")
+	FOREIGN KEY ("version", "dataownercode", "specificdaycode") REFERENCES "specday" ("version", "dataownercode", "specificdaycode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "timdemgrp" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"             DECIMAL(2)    NOT NULL,
+	"version"             INTEGER    NOT NULL,
 	"implicit"            CHAR(1)       NOT NULL,
 	"dataownercode"       VARCHAR(10)   NOT NULL,
 	"lineplanningnumber"  VARCHAR(10)   NOT NULL,
 	"journeypatterncode"  VARCHAR(10)   NOT NULL,
 	"timedemandgroupcode" VARCHAR(10)   NOT NULL,
 	PRIMARY KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode"),
-	FOREIGN KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode") REFERENCES "jopa" ("version", "dataownercode", "lineplanningnumber", "journeypatterncode")
+	FOREIGN KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode") REFERENCES "jopa" ("version", "dataownercode", "lineplanningnumber", "journeypatterncode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 CREATE TABLE "timdemrnt" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"             DECIMAL(2)    NOT NULL,
+	"version"             INTEGER    NOT NULL,
 	"implicit"            CHAR(1)       NOT NULL,
 	"dataownercode"       VARCHAR(10)   NOT NULL,
 	"lineplanningnumber"  VARCHAR(10)   NOT NULL,
@@ -299,11 +319,13 @@ CREATE TABLE "timdemrnt" (
 	"minimumstoptime"     DECIMAL(5),
 	PRIMARY KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode", "timinglinkorder"),
 	FOREIGN KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode") REFERENCES "timdemgrp" ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode"),
-	FOREIGN KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timinglinkorder") REFERENCES "jopatili" ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timinglinkorder")
+	FOREIGN KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timinglinkorder") REFERENCES "jopatili" ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timinglinkorder"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
+
 );
 CREATE TABLE "pujo" (
 	"tablename"         VARCHAR(10)   NOT NULL,
-	"version"                DECIMAL(2)    NOT NULL,
+	"version"                INTEGER    NOT NULL,
 	"implicit"               CHAR(1)       NOT NULL,
 	"dataownercode"          VARCHAR(10)   NOT NULL,
 	"organizationalunitcode" VARCHAR(10)   NOT NULL,
@@ -320,12 +342,13 @@ CREATE TABLE "pujo" (
 	"dataownerisoperator"    BOOLEAN       NOT NULL,
 	 PRIMARY KEY ("version", "dataownercode", "timetableversioncode", "organizationalunitcode", "periodgroupcode", "specificdaycode", "daytype", "lineplanningnumber", "journeynumber"),
 	 FOREIGN KEY ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode") REFERENCES "timdemgrp" ("version", "dataownercode", "lineplanningnumber", "journeypatterncode", "timedemandgroupcode"),
-	 FOREIGN KEY ("version", "dataownercode", "organizationalunitcode", "timetableversioncode", "periodgroupcode", "specificdaycode") REFERENCES "tive" ("version", "dataownercode", "organizationalunitcode", "timetableversioncode", "periodgroupcode", "specificdaycode")
+	 FOREIGN KEY ("version", "dataownercode", "organizationalunitcode", "timetableversioncode", "periodgroupcode", "specificdaycode") REFERENCES "tive" ("version", "dataownercode", "organizationalunitcode", "timetableversioncode", "periodgroupcode", "specificdaycode"),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 
 CREATE TABLE schedvers (
     "tablename"         VARCHAR(10)   NOT NULL,
-    version numeric(2,0) NOT NULL,
+    version integer NOT NULL,
     implicit CHAR(1) NOT NULL,
     dataownercode character varying(10) NOT NULL,
     organizationalunitcode character varying(10) NOT NULL,
@@ -335,12 +358,13 @@ CREATE TABLE schedvers (
     validthru date,
     description character varying(255),
     PRIMARY KEY (version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode),
-    FOREIGN KEY (version, dataownercode, organizationalunitcode) REFERENCES orun(version, dataownercode, organizationalunitcode)
+    FOREIGN KEY (version, dataownercode, organizationalunitcode) REFERENCES orun(version, dataownercode, organizationalunitcode),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 
 CREATE TABLE operday (
     "tablename"         VARCHAR(10)   NOT NULL,
-    version numeric(2,0) NOT NULL,
+    version integer NOT NULL,
     implicit CHAR(1) NOT NULL,
     dataownercode character varying(10) NOT NULL,
     organizationalunitcode character varying(10) NOT NULL,
@@ -349,12 +373,13 @@ CREATE TABLE operday (
     validdate date NOT NULL,
     description character varying(255),
     PRIMARY KEY (version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode, validdate),
-    FOREIGN KEY (version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode) REFERENCES schedvers(version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode)
+    FOREIGN KEY (version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode) REFERENCES schedvers(version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 
 CREATE TABLE pujopass (
     "tablename"         VARCHAR(10)   NOT NULL,
-    version numeric(2,0) NOT NULL,
+    version integer NOT NULL,
     implicit CHAR(1) NOT NULL,
     dataownercode character varying(10) NOT NULL,
     organizationalunitcode character varying(10) NOT NULL,
@@ -372,6 +397,7 @@ CREATE TABLE pujopass (
     PRIMARY KEY (version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode, lineplanningnumber, journeynumber, stoporder),
     FOREIGN KEY (version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode) REFERENCES schedvers(version, dataownercode, organizationalunitcode, schedulecode, scheduletypecode),
     FOREIGN KEY (version, dataownercode, userstopcode) REFERENCES usrstop(version, dataownercode, userstopcode),
-    FOREIGN KEY (version, dataownercode, lineplanningnumber, journeypatterncode) REFERENCES jopa(version, dataownercode, lineplanningnumber, journeypatterncode)
+    FOREIGN KEY (version, dataownercode, lineplanningnumber, journeypatterncode) REFERENCES jopa(version, dataownercode, lineplanningnumber, journeypatterncode),
+    FOREIGN KEY ("version", "dataownercode") REFERENCES "version" ("version", "dataownercode") ON DELETE CASCADE
 );
 
